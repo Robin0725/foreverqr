@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForeverQR — Free QR Codes That Never Expire. No Subscription, No Tricks.</title>
+<meta name="description" content="Generate QR codes that mathematically cannot expire. Made 100% in your browser — no account, no subscription, no scan limits, no expiring trial. Logo, colors, SVG & high-res PNG. Free forever.">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1118;
+    --panel: #171c28;
+    --panel2: #1f2535;
+    --border: #2b3349;
+    --text: #ecf0f8;
+    --muted: #8e98ad;
+    --accent: #22c55e;
+    --accent-dark: #16a34a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  header {
+    padding: 16px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-weight: 800; font-size: 19px; }
+  .logo span { color: var(--accent); }
+  .pro-pill {
+    background: rgba(34,197,94,.1);
+    border: 1px solid rgba(34,197,94,.4);
+    color: var(--accent);
+    padding: 7px 14px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hero { text-align: center; padding: 44px 20px 10px; }
+  .hero h1 { font-size: clamp(26px, 4.5vw, 42px); letter-spacing: -.8px; line-height: 1.15; }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero > p { color: var(--muted); max-width: 640px; margin: 14px auto 0; font-size: 16px; line-height: 1.65; }
+  .app {
+    display: flex;
+    gap: 24px;
+    max-width: 980px;
+    margin: 36px auto 50px;
+    padding: 0 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .controls {
+    flex: 1 1 420px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    min-width: 320px;
+  }
+  .tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tab {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: #06220f; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 7px; }
+  .field input[type=text], .field input[type=url], .field textarea, .field select {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 9px;
+    padding: 11px 13px;
+    font-size: 15px;
+    font-family: inherit;
+  }
+  .field textarea { min-height: 84px; resize: vertical; }
+  .field input:focus, .field textarea:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stylerow { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  .stylerow .chip { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  input[type=color] {
+    width: 38px; height: 38px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--panel2);
+    padding: 3px;
+    cursor: pointer;
+  }
+  .logobtn {
+    background: var(--panel2);
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    border-radius: 9px;
+    padding: 9px 14px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .logobtn:hover { border-color: var(--accent); color: var(--text); }
+  .preview {
+    flex: 0 1 320px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    text-align: center;
+    position: sticky;
+    top: 20px;
+  }
+  #qrcanvas {
+    width: 256px;
+    height: 256px;
+    border-radius: 12px;
+    background: #fff;
+    image-rendering: pixelated;
+  }
+  .dlrow { display: flex; gap: 10px; margin-top: 16px; }
+  .dlbtn {
+    flex: 1;
+    background: var(--accent);
+    color: #06220f;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .dlbtn.ghost { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+  .dlbtn:hover { opacity: .88; }
+  .promise { margin-top: 14px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .promise b { color: var(--accent); }
+  .content { max-width: 760px; margin: 0 auto; padding: 10px 20px 70px; }
+  .content h2 { font-size: 22px; margin: 36px 0 12px; letter-spacing: -.3px; }
+  .content p, .content li { color: var(--muted); font-size: 15px; line-height: 1.78; }
+  .content ul { padding-left: 22px; }
+  .callout {
+    background: rgba(34,197,94,.07);
+    border: 1px solid rgba(34,197,94,.3);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 16px;
+  }
+  .callout p { color: var(--text); }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: none; align-items: center; justify-content: center; z-index: 50; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 30px; max-width: 460px; margin: 20px; }
+  .modal h3 { margin-bottom: 12px; }
+  .modal p, .modal li { color: var(--muted); font-size: 14px; line-height: 1.75; }
+  .modal ul { padding-left: 20px; margin: 10px 0 16px; }
+  .modal button { background: var(--accent); color: #06220f; border: none; padding: 10px 24px; border-radius: 9px; font-weight: 700; cursor: pointer; }
+  footer { border-top: 1px solid var(--border); padding: 18px 28px; color: var(--muted); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Forever<span>QR</span></div>
+  <button class="pro-pill" onclick="openModal()">✨ Bulk &amp; print packs — soon</button>
+</header>
+
+<div class="hero">
+  <h1>QR codes that <em>never expire</em>.<br>We couldn't kill them if we wanted to.</h1>
+  <p>Your code is generated by math, inside your own browser — it never touches our servers, so there is nothing we could switch off, limit, or charge you for later. Print it on 10,000 menus with confidence.</p>
+</div>
+
+<div class="app">
+  <div class="controls">
+    <div class="tabs">
+      <button class="tab active" data-t="url">🔗 URL</button>
+      <button class="tab" data-t="text">📝 Text</button>
+      <button class="tab" data-t="wifi">📶 WiFi</button>
+      <button class="tab" data-t="vcard">👤 Contact</button>
+    </div>
+
+    <div class="pane" id="p-url">
+      <div class="field">
+        <label>Website address</label>
+        <input type="url" id="in-url" placeholder="https://your-website.com" value="">
+      </div>
+    </div>
+
+    <div class="pane" id="p-text" style="display:none">
+      <div class="field">
+        <label>Any text</label>
+        <textarea id="in-text" placeholder="The text you want the QR code to contain…"></textarea>
+      </div>
+    </div>
+
+    <div class="pane" id="p-wifi" style="display:none">
+      <div class="grid2">
+        <div class="field"><label>Network name (SSID)</label><input type="text" id="in-ssid"></div>
+        <div class="field"><label>Password</label><input type="text" id="in-pass"></div>
+      </div>
+      <div class="field">
+        <label>Security</label>
+        <select id="in-enc"><option value="WPA">WPA / WPA2 / WPA3</option><option value="WEP">WEP</option><option value="nopass">Open (no password)</option></select>
+      </div>
+    </div>
+
+    <div class="pane" id="p-vcard" style="display:none">
+      <div class="grid2">
+        <div class="field"><label>Full name</label><input type="text" id="in-name"></div>
+        <div class="field"><label>Phone</label><input type="text" id="in-phone"></div>
+        <div class="field"><label>Email</label><input type="text" id="in-email"></div>
+        <div class="field"><label>Company</label><input type="text" id="in-org"></div>
+      </div>
+      <div class="field"><label>Website</label><input type="text" id="in-vurl"></div>
+    </div>
+
+    <div class="field" style="margin-top:6px">
+      <label>Style</label>
+      <div class="stylerow">
+        <span class="chip">Code <input type="color" id="fg" value="#111111"></span>
+        <span class="chip">Background <input type="color" id="bgc" value="#ffffff"></span>
+        <button class="logobtn" id="logobtn">＋ Add logo (optional)</button>
+        <input type="file" id="logofile" accept="image/*" hidden>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <canvas id="qrcanvas" width="256" height="256"></canvas>
+    <div class="dlrow">
+      <button class="dlbtn" onclick="downloadPng()">⬇ PNG (1024px)</button>
+      <button class="dlbtn ghost" onclick="downloadSvg()">⬇ SVG</button>
+    </div>
+    <p class="promise"><b>Forever promise:</b> this is a static QR code. It works even if this website disappears. No scan limits. No trial. No account.</p>
+  </div>
+</div>
+
+<div class="content">
+  <h2>Why do QR codes from other generators stop working?</h2>
+  <p>Many popular "free" QR generators give you a <i>dynamic</i> code by default: instead of containing your link, the code points to <i>their</i> server, which then redirects to your link. That lets them disable your code when the free trial ends — typically days after you've already printed it on menus, business cards, or packaging — and charge upwards of €178/year to turn it back on.</p>
+  <div class="callout">
+    <p><b>ForeverQR only makes static codes.</b> Your link is encoded directly into the pattern itself, by an algorithm running in your browser. There is no middleman server — ours or anyone's. The code will scan correctly for as long as your website exists, even if ForeverQR shuts down. That's not a promise we keep; it's math we can't break.</p>
+  </div>
+
+  <h2>What's the catch?</h2>
+  <p>Honestly: static codes can't do scan-counting analytics, and you can't change the destination after printing (the address is baked into the pattern — so double-check it before you print). If you need those features you need a dynamic code and a subscription somewhere. Most people don't: a menu, a WiFi card, a business card, a link to your shop — static is exactly right, and it should be free.</p>
+
+  <h2>FAQ</h2>
+  <ul>
+    <li><b>Will my code ever expire?</b> No. It cannot. The data lives inside the printed pattern itself.</li>
+    <li><b>Is there a scan limit?</b> No. Scanning happens between the user's phone camera and your website — we're not involved.</li>
+    <li><b>Can I use it commercially?</b> Yes, freely — print as many as you like.</li>
+    <li><b>Does adding a logo break scanning?</b> No — we automatically use the highest error-correction level, which tolerates the logo area. Test-scan before mass printing, as you should with any QR code.</li>
+    <li><b>PNG or SVG?</b> PNG (1024px) is fine for most printing; SVG is infinitely sharp for professional print shops and large posters.</li>
+  </ul>
+
+  <h2>Make your QR code now</h2>
+  <p>Scroll up, paste your link, download. No signup, nothing to cancel later — that's the whole point.</p>
+</div>
+
+<footer>
+  <span>© 2026 ForeverQR — static QR codes, generated in your browser.</span>
+  <span>Nothing uploaded. Nothing expires.</span>
+</footer>
+
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>✨ Coming soon — one-time purchase, never a subscription</h3>
+    <ul>
+      <li>Bulk generation from a CSV (100s of codes at once)</li>
+      <li>Print-ready packs: table tents, stickers, WiFi cards</li>
+      <li>Brand presets saved in your browser</li>
+    </ul>
+    <p>Everything on this page today is free and stays free.</p>
+    <div style="text-align:right; margin-top:14px"><button onclick="closeModal()">Got it</button></div>
+  </div>
+</div>
+
+<script>
+let tab = 'url';
+let logoImg = null;
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  tab = t.dataset.t;
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+  document.querySelectorAll('.pane').forEach(p => p.style.display = 'none');
+  document.getElementById('p-' + tab).style.display = 'block';
+  render();
+});
+
+function esc(s) { return s.replace(/([\\;,:"])/g, '\\$1'); }
+
+function payload() {
+  if (tab === 'url') {
+    let u = document.getElementById('in-url').value.trim();
+    if (u && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(u)) u = 'https://' + u;
+    return u;
+  }
+  if (tab === 'text') return document.getElementById('in-text').value;
+  if (tab === 'wifi') {
+    const ssid = document.getElementById('in-ssid').value.trim();
+    if (!ssid) return '';
+    const enc = document.getElementById('in-enc').value;
+    const pass = document.getElementById('in-pass').value;
+    return 'WIFI:T:' + enc + ';S:' + esc(ssid) + ';' + (enc === 'nopass' ? '' : 'P:' + esc(pass) + ';') + ';';
+  }
+  if (tab === 'vcard') {
+    const n = document.getElementById('in-name').value.trim();
+    if (!n) return '';
+    const lines = ['BEGIN:VCARD', 'VERSION:3.0', 'FN:' + n];
+    const phone = document.getElementById('in-phone').value.trim();
+    const email = document.getElementById('in-email').value.trim();
+    const org = document.getElementById('in-org').value.trim();
+    const vu = document.getElementById('in-vurl').value.trim();
+    if (phone) lines.push('TEL:' + phone);
+    if (email) lines.push('EMAIL:' + email);
+    if (org) lines.push('ORG:' + org);
+    if (vu) lines.push('URL:' + vu);
+    lines.push('END:VCARD');
+    return lines.join('\n');
+  }
+  return '';
+}
+
+function makeQr() {
+  const data = payload();
+  if (!data) return null;
+  try {
+    const qr = qrcode(0, 'H'); // auto type, highest error correction (logo-safe)
+    qr.addData(data, 'Byte');
+    qr.make();
+    return qr;
+  } catch (e) { return null; }
+}
+
+const PLACEHOLDER = 'https://foreverqr.example';
+
+function drawOn(canvas, px, qr) {
+  const ctx = canvas.getContext('2d');
+  const n = qr.getModuleCount();
+  const margin = 4; // quiet zone in modules
+  const total = n + margin * 2;
+  const cell = px / total;
+  ctx.fillStyle = document.getElementById('bgc').value;
+  ctx.fillRect(0, 0, px, px);
+  ctx.fillStyle = document.getElementById('fg').value;
+  for (let r = 0; r < n; r++)
+    for (let c = 0; c < n; c++)
+      if (qr.isDark(r, c))
+        ctx.fillRect(Math.floor((c + margin) * cell), Math.floor((r + margin) * cell), Math.ceil(cell), Math.ceil(cell));
+  if (logoImg) {
+    const ls = px * 0.2;
+    const pad = ls * 0.12;
+    const x = (px - ls) / 2;
+    ctx.fillStyle = '#ffffff';
+    const rr = ls * 0.18;
+    ctx.beginPath();
+    ctx.roundRect(x - pad, x - pad, ls + pad * 2, ls + pad * 2, rr);
+    ctx.fill();
+    ctx.drawImage(logoImg, x, x, ls, ls);
+  }
+}
+
+function render() {
+  const canvas = document.getElementById('qrcanvas');
+  let qr = makeQr();
+  let ghost = false;
+  if (!qr) {
+    const q = qrcode(0, 'H');
+    q.addData(PLACEHOLDER, 'Byte');
+    q.make();
+    qr = q;
+    ghost = true;
+  }
+  canvas.width = 512; canvas.height = 512;
+  drawOn(canvas, 512, qr);
+  canvas.style.opacity = ghost ? .25 : 1;
+}
+
+document.querySelectorAll('input, textarea, select').forEach(el => {
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+
+document.getElementById('logobtn').onclick = () => document.getElementById('logofile').click();
+document.getElementById('logofile').onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = ev => {
+    const im = new Image();
+    im.onload = () => { logoImg = im; document.getElementById('logobtn').textContent = '✓ Logo added — click to change'; render(); };
+    im.src = ev.target.result;
+  };
+  rd.readAsDataURL(f);
+};
+
+function downloadPng() {
+  const qr = makeQr();
+  if (!qr) { alert('Enter your content first.'); return; }
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 1024;
+  drawOn(c, 1024, qr);
+  const a = document.createElement('a');
+  a.download = 'qr-code.png';
+  a.href = c.toDataURL('image/png');
+  a.click();
+}
+
+function downloadSvg() {
+  const qr = makeQr();
+  if (!qr) { alert('Enter your content first.'); return; }
+  const n = qr.getModuleCount();
+  const margin = 4, total = n + margin * 2;
+  const fg = document.getElementById('fg').value;
+  const bg = document.getElementById('bgc').value;
+  let rects = '';
+  for (let r = 0; r < n; r++)
+    for (let c = 0; c < n; c++)
+      if (qr.isDark(r, c))
+        rects += `<rect x="${c + margin}" y="${r + margin}" width="1" height="1"/>`;
+  let logo = '';
+  if (logoImg) {
+    const ls = total * 0.2, pad = ls * 0.12, x = (total - ls) / 2;
+    const cv = document.createElement('canvas');
+    cv.width = 256; cv.height = 256;
+    cv.getContext('2d').drawImage(logoImg, 0, 0, 256, 256);
+    logo = `<rect x="${x - pad}" y="${x - pad}" width="${ls + pad * 2}" height="${ls + pad * 2}" rx="${ls * 0.18}" fill="#ffffff"/>` +
+           `<image x="${x}" y="${x}" width="${ls}" height="${ls}" href="${cv.toDataURL('image/png')}"/>`;
+  }
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="${bg}"/><g fill="${fg}">${rects}</g>${logo}</svg>`;
+  const a = document.createElement('a');
+  a.download = 'qr-code.svg';
+  a.href = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+render();
+</script>
+</body>
+</html>
